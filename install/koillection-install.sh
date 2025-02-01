@@ -21,9 +21,20 @@ $STD apt-get install -y \
   postgresql \
   apache2 \
   composer \
-  php-8.4{ctype,fileinfo,gd,iconv,intl,apcu} \
-  libapache2-mod-php
+  lsb-release \
+  ca-certificates \
+  apt-transport-https
 msg_ok "Installed Dependencies"
+
+msg_info "Setup PHP"
+curl -sSLo /tmp/debsuryorg-archive-keyring.deb https://packages.sury.org/debsuryorg-archive-keyring.deb
+dpkg -i /tmp/debsuryorg-archive-keyring.deb
+sh -c 'echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'
+apt-get update
+$STD apt-get install -y \
+  php8.4-{ctype,fileinfo,gd,iconv,intl,apcu} \
+  libapache2-mod-php8.4
+msg_info "Setup PHP"
 
 msg_info "Setting up PostgreSQL"
 DB_NAME=koillection
