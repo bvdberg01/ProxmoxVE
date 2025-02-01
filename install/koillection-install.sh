@@ -18,27 +18,26 @@ $STD apt-get install -y \
   sudo \
   mc \
   gnupg2\
-  mariadb-server \
+  postgresql \
   apache2 \
   libapache2-mod-php \
-  php-{bcmath,curl,dom,gd,gmp,iconv,intl,json,mbstring,mysqli,opcache,pdo-mysql,redis,tokenizer,xml,zip} \
+  php-{ctype,fileinfo,gd,iconv,intl,json,apcu} \
   composer
 msg_ok "Installed Dependencies"
 
-msg_info "Setting up MariaDB"
-DB_NAME=monica
-DB_USER=monica
-DB_PASS=$(openssl rand -base64 18 | tr -dc 'a-zA-Z0-9' | head -c13)
-$STD mysql -u root -e "CREATE DATABASE $DB_NAME;"
-$STD mysql -u root -e "CREATE USER '$DB_USER'@'localhost' IDENTIFIED WITH mysql_native_password AS PASSWORD('$DB_PASS');"
-$STD mysql -u root -e "GRANT ALL ON $DB_NAME.* TO '$DB_USER'@'localhost'; FLUSH PRIVILEGES;"
+msg_info "Setting up PostgreSQL"
+DB_NAME=koillection
+DB_USER=koillection
+DB_PASS=$(openssl rand -base64 18 | tr -dc 'a-zA-Z0-9' | cut -c1-13)
+$STD sudo -u postgres psql -c "CREATE ROLE $DB_USER WITH LOGIN PASSWORD '$DB_PASS';"
+$STD sudo -u postgres psql -c "CREATE DATABASE $DB_NAME WITH OWNER $DB_USER TEMPLATE template0;"
 {
-    echo "monica-Credentials"
-    echo "monica Database User: $DB_USER"
-    echo "monica Database Password: $DB_PASS"
-    echo "monica Database Name: $DB_NAME"
-} >> ~/monica.creds
-msg_ok "Set up MariaDB"
+echo "Koillection Credentials"
+echo "Koillection Database User: $DB_USER"
+echo "Koillection Database Password: $DB_PASS"
+echo "Koillection Database Name: $DB_NAME"
+} >> ~/koillection.creds
+msg_ok "Set up PostgreSQL"
 
 msg_info "Setting up Node.js/Yarn"
 mkdir -p /etc/apt/keyrings
@@ -50,45 +49,46 @@ $STD npm install -g npm@latest
 $STD npm install -g yarn
 msg_ok "Installed Node.js/Yarn"
 
-msg_info "Installing monica"
-RELEASE=$(curl -s https://api.github.com/repos/monicahq/monica/releases/latest | grep "tag_name" | awk '{print substr($2, 3, length($2)-4) }')
+msg_info "Installing Koillection"
+RELEASE=$(curl -s https://api.github.com/repos/benjaminjonard/koillection/releases/latest | grep "tag_name" | awk '{print substr($2, 2, length($2)-3) }')
 cd /opt
-wget -q "https://github.com/monicahq/monica/releases/download/v${RELEASE}/monica-v${RELEASE}.tar.bz2"
-tar -xjf "monica-v${RELEASE}.tar.bz2"
-mv "/opt/monica-v${RELEASE}" /opt/monica
-cd /opt/monica
-cp /opt/monica/.env.example /opt/monica/.env
-HASH_SALT=$(openssl rand -base64 32)
-sed -i -e "s|^DB_USERNAME=.*|DB_USERNAME=${DB_USER}|" \
+wget -q "https://github.com/benjaminjonard/koillection/archive/refs/tags/${RELEASE}.zip"
+unzip -q "v${RELEASE}.zip"
+mv "/opt/koillection-${RELEASE}" /opt/koillection
+cd /opt/koillection
+cp /opt/koillection/.env /opt/koillection/.env.local
+sed -i -e "s|^DB_DRIVER=.*|DB_DRIVER=pdo_pgsql|" \
+       -e "s|^DB_HOST=.*|DB_HOST=localhost|" \
+       -e "s|^DB_USER=.*|DB_USER=${DB_USER}|" \
        -e "s|^DB_PASSWORD=.*|DB_PASSWORD=${DB_PASS}|" \
-       -e "s|^HASH_SALT=.*|HASH_SALT=${HASH_SALT}|" \
-       /opt/monica/.env
+       -e "s|^DB_NAME=.*|DB_PASSWORD=${DB_NAME}|" \
+       /opt/koillection/.env
 $STD composer install --no-dev -o --no-interaction
+$STD php bin/console doctrine:migrations:migrate
+$STD php bin/console app:translations:dump
+cd assets/
 $STD yarn install
-$STD yarn run production
-$STD php artisan key:generate
-$STD php artisan setup:production --email=admin@helper-scripts.com --password=helper-scripts.com --force
-chown -R www-data:www-data /opt/monica
-chmod -R 775 /opt/monica/storage
+$STD yarn build 
+chown -R www-data:www-data /opt/koillection
 echo "${RELEASE}" >/opt/${APPLICATION}_version.txt
-msg_ok "Installed monica"
+msg_ok "Installed Koillection"
 
 msg_info "Creating Service"
-cat <<EOF >/etc/apache2/sites-available/monica.conf
+cat <<EOF >/etc/apache2/sites-available/koillection.conf
 <VirtualHost *:80>
-    ServerName monica
-    DocumentRoot /opt/monica/public
-    <Directory /opt/monica/public>
+    ServerName koillection
+    DocumentRoot /opt/koillection/public
+    <Directory /opt/koillection/public>
         Options Indexes FollowSymLinks
         AllowOverride All
         Require all granted
     </Directory>
 
-    ErrorLog /var/log/apache2/monica_error.log
-    CustomLog /var/log/apache2/monica_access.log combined
+    ErrorLog /var/log/apache2/koillection_error.log
+    CustomLog /var/log/apache2/koillection_access.log combined
 </VirtualHost>
 EOF
-$STD a2ensite monica
+$STD a2ensite koillection
 $STD a2enmod rewrite
 $STD a2dissite 000-default.conf
 $STD systemctl reload apache2
@@ -98,7 +98,7 @@ motd_ssh
 customize
 
 msg_info "Cleaning up"
-rm -rf "/opt/monica-v${RELEASE}.tar.bz2"
+rm -rf "/opt/koillection-v${RELEASE}.tar.bz2"
 $STD apt-get -y autoremove
 $STD apt-get -y autoclean
 msg_ok "Cleaned"
