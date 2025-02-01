@@ -23,20 +23,15 @@ $STD apt-get install -y \
   composer
 msg_ok "Installed Dependencies"
 
-msg_info "Setup PHP8.4 Repository"
-$STD curl -sSLo /tmp/debsuryorg-archive-keyring.deb https://packages.sury.org/debsuryorg-archive-keyring.deb
-$STD dpkg -i /tmp/debsuryorg-archive-keyring.deb
-$STD sh -c 'echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'
+msg_info "Setup/Install PHP8.4 Repository"
+curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.org/php/apt.gpg
+echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ bookworm main" >/etc/apt/sources.list.d/php.list
 $STD apt-get update
-msg_ok "Setup PHP8.4 Repository"
-
-msg_info "Setup PHP"
-$STD apt-get remove -y php8.2*
 $STD apt-get install -y \
-  php8.4 \
+$STD apt-get install -y \
   php8.4-{ctype,fileinfo,gd,iconv,intl,json,apcu} \
   libapache2-mod-php8.4
-msg_info "Setup PHP"
+msg_ok "Setup/Install PHP8.4 Repository"
 
 msg_info "Setting up PostgreSQL"
 DB_NAME=koillection
