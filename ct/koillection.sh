@@ -11,8 +11,8 @@ var_tags="network"
 var_cpu="2"
 var_ram="2048"
 var_disk="8"
-var_os="debian"
-var_version="12"
+var_os="ubuntu"
+var_version="24.04"
 var_unprivileged="1"
 
 # App Output & Base Settings

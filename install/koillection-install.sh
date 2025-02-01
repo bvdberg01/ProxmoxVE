@@ -20,17 +20,10 @@ $STD apt-get install -y \
   gnupg2\
   postgresql \
   apache2 \
-  composer
+  composer \
+  php-{ctype,fileinfo,gd,iconv,intl,apcu} \
+  libapache2-mod-php
 msg_ok "Installed Dependencies"
-
-msg_info "Setup/Install PHP8.4 Repository"
-curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.org/php/apt.gpg
-echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ bookworm main" >/etc/apt/sources.list.d/php.list
-$STD apt-get update
-$STD apt-get install -y \
-  php8.4-{ctype,fileinfo,gd,iconv,intl,apcu} \
-  libapache2-mod-php8.4
-msg_ok "Setup/Install PHP8.4 Repository"
 
 msg_info "Setting up PostgreSQL"
 DB_NAME=koillection
