@@ -21,7 +21,7 @@ $STD apt-get install -y \
   postgresql \
   apache2 \
   composer \
-  php-{ctype,fileinfo,gd,iconv,intl,apcu} \
+  php-8.4{ctype,fileinfo,gd,iconv,intl,apcu} \
   libapache2-mod-php
 msg_ok "Installed Dependencies"
 
