@@ -28,7 +28,6 @@ curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.org/ph
 echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ bookworm main" >/etc/apt/sources.list.d/php.list
 $STD apt-get update
 $STD apt-get install -y \
-$STD apt-get install -y \
   php8.4-{ctype,fileinfo,gd,iconv,intl,json,apcu} \
   libapache2-mod-php8.4
 msg_ok "Setup/Install PHP8.4 Repository"
