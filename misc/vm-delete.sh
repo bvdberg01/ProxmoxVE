@@ -54,9 +54,9 @@ menu_items=()
 FORMAT="%-10s %-15s %-10s"
 
 while read -r virtualmachine; do
-    VM_id=$(echo $virtualmachine | awk '{print $1}')
-    VM_name=$(echo $virtualmachine | awk '{print $2}')
-    VM_status=$(echo $virtualmachine | awk '{print $3}')
+    virtualmachine_id=$(echo $virtualmachine | awk '{print $1}')
+    virtualmachine_name=$(echo $virtualmachine | awk '{print $2}')
+    virtualmachine_status=$(echo $virtualmachine | awk '{print $3}')
     formatted_line=$(printf "$FORMAT" "$virtualmachine_name" "$virtualmachine_status")
     menu_items+=("$virtualmachine_id" "$formatted_line" "OFF")
 done <<< "$virtualmachines"
@@ -76,7 +76,7 @@ DELETE_MODE=${DELETE_MODE:-m}
 
 selected_ids=$(echo "$CHOICES" | tr -d '"' | tr -s ' ' '\n')
 
-for VM_id in $selected_ids; do
+for virtualmachine_id in $selected_ids; do
     status=$(qm status $virtualmachine_id)
 
     if [ "$status" == "status: running" ]; then
