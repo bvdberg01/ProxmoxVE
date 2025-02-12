@@ -1,9 +1,15 @@
 #!/usr/bin/env bash
-source <(curl -s https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/misc/build.func)
+source <(curl -s https://raw.githubusercontent.com/bvdberg01/ProxmoxVE/lxcbackup/misc/build.func)
 # Copyright (c) 2021-2025 community-scripts ORG
 # Author: bvdberg01
 # License: MIT | https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
 # Source: https://phpipam.net/
+
+if [[ "$@" == *"--from-pve"* ]]; then
+  export FROM_PVE="1"
+else
+  export FROM_PVE="0"
+fi
 
 # App Default Values
 APP="phpIPAM"
