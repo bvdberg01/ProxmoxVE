@@ -55,8 +55,8 @@ FORMAT="%-10s %-15s %-10s"
 
 while read -r virtualmachine; do
     virtualmachine_id=$(echo $virtualmachine | awk '{print $1}')
-    virtualmachine_name=$(echo $virtualmachine | awk '{print $2}')
-    virtualmachine_status=$(echo $virtualmachine | awk '{print $3}')
+    virtualmachine_status=$(echo $virtualmachine | awk '{print $2}')
+    virtualmachine_name=$(echo $virtualmachine | awk '{print $3}')
     formatted_line=$(printf "$FORMAT" "$virtualmachine_name" "$virtualmachine_status")
     menu_items+=("$virtualmachine_id" "$formatted_line" "OFF")
 done <<< "$virtualmachines"
