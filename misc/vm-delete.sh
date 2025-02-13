@@ -43,7 +43,7 @@ echo "Loading..."
 whiptail --backtitle "Proxmox VE Helper Scripts" --title "Proxmox VE VM Deletion" --yesno "This will delete Virtual Machines. Proceed?" 10 58 || exit
 
 NODE=$(hostname)
-virtualmachines=$(qm list | tail -n +2 | awk '{print $0 " " $4}')
+virtualmachines=$(qm list | tail -n +2 | awk -v OFS=" " '{print $1, "\""$2"\"", $3, $4, $5, $6}')
 
 if [ -z "$virtualmachines" ]; then
     whiptail --title "Virtual Machine Delete" --msgbox "No Virtual Machines available!" 10 60
@@ -55,8 +55,8 @@ FORMAT="%-10s %-15s %-10s"
 
 while read -r virtualmachine; do
     virtualmachine_id=$(echo $virtualmachine | awk '{print $1}')
-    virtualmachine_status=$(echo $virtualmachine | awk '{print $2}')
-    virtualmachine_name=$(echo $virtualmachine | awk '{print $3}')
+    virtualmachine_status=$(echo $virtualmachine | awk '{print $3}')
+    virtualmachine_name=$(echo $virtualmachine | awk -F'"' '{print $2}')
     formatted_line=$(printf "$FORMAT" "$virtualmachine_name" "$virtualmachine_status")
     menu_items+=("$virtualmachine_id" "$formatted_line" "OFF")
 done <<< "$virtualmachines"
