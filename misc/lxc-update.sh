@@ -99,10 +99,16 @@ status=$?
 if [ $status -eq 0 ]; then
 msg_ok "Backup created"
 pct exec $CHOICE -- update --from-pve
+exit_code=$?
 else
 msg_error "Backup failed"
 fi
 else
 pct exec $CHOICE -- update --from-pve
+exit_code=$?
 fi
-echo -e "${GN}Update process completed.${CL}\n"
+if [ $exit_code -eq 0 ]; then
+    msg_ok "Update completed"
+else
+    msg_error "Update failed"
+fi
