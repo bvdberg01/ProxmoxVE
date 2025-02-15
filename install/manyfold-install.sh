@@ -54,11 +54,12 @@ msg_ok "Installed Node.js/Yarn"
 
 msg_info "Installing Ruby Version Manager"
 $STD gpg2 --keyserver keyserver.ubuntu.com --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
-curl -sSL https://get.rvm.io | bash -s stable
+$STD curl -sSL https://get.rvm.io | bash -s stable
 msg_ok "Installed Ruby Version Manager"
 
 msg_info "Installing Manyfold"
 RELEASE=$(curl -s https://api.github.com/repos/manyfold3d/manyfold/releases/latest | grep "tag_name" | awk '{print substr($2, 3, length($2)-4) }')
+cd /opt
 wget -q "https://github.com/manyfold3d/manyfold/archive/refs/tags/v${RELEASE}.zip"
 unzip -q "v${RELEASE}.zip"
 mv /opt/manyfold-${RELEASE}/ /opt/manyfold
