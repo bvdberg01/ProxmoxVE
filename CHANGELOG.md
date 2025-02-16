@@ -17,6 +17,24 @@ All LXC instances created using this repository come pre-installed with Midnight
 Do not break established syntax in this file, as it is automatically updated by a Github Workflow
 
 
+## 2025-02-15
+
+### Changes
+
+### 🚀 Updated Scripts
+
+- Setup cron in install/freshrss-install.sh [@zimmra](https://github.com/zimmra) ([#2412](https://github.com/community-scripts/ProxmoxVE/pull/2412))
+- Fix: Homarr update service files [@CrazyWolf13](https://github.com/CrazyWolf13) ([#2416](https://github.com/community-scripts/ProxmoxVE/pull/2416))
+- Update MagicMirror install and update scripts [@tremor021](https://github.com/tremor021) ([#2409](https://github.com/community-scripts/ProxmoxVE/pull/2409))
+
+### 🌐 Website
+
+- Fix RustDesk slug in json [@tremor021](https://github.com/tremor021) ([#2411](https://github.com/community-scripts/ProxmoxVE/pull/2411))
+
+### 🧰 Maintenance
+
+- [GH] Update script-test Workflow [@michelroegl-brunner](https://github.com/michelroegl-brunner) ([#2415](https://github.com/community-scripts/ProxmoxVE/pull/2415))
+
 ## 2025-02-14
 
 ### Changes
