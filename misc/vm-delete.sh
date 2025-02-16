@@ -43,7 +43,7 @@ echo "Loading..."
 whiptail --backtitle "Proxmox VE Helper Scripts" --title "Proxmox VE VM Deletion" --yesno "This will delete Virtual Machines. Proceed?" 10 58 || exit
 
 NODE=$(hostname)
-virtualmachines=$(qm list | tail -n +2 | sed -E 's/ +/ /g' | sed -E 's/^([0-9]+) (.+?) +([^ ]+) +([^ ]+) +([^ ]+) +([0-9]+)/\1 "\2" \3 \4 \5 \6/')
+virtualmachines=$(pvesh get /cluster/resources --type vm --output-format json)
 
 if [ -z "$virtualmachines" ]; then
     whiptail --title "Virtual Machine Delete" --msgbox "No Virtual Machines available!" 10 60
@@ -53,13 +53,17 @@ fi
 menu_items=()
 FORMAT="%-10s %-15s %-10s"
 
-while read -r virtualmachine; do
-    virtualmachine_id=$(echo $virtualmachine | awk '{print $1}')
-    virtualmachine_status=$(echo $virtualmachine | awk '{print $2 " " $3}')
-    virtualmachine_name=$(echo $virtualmachine | awk '{print $4}')  
-    formatted_line=$(printf "$FORMAT" "$virtualmachine_name" "$virtualmachine_status")
-    menu_items+=("$virtualmachine_id" "$formatted_line" "OFF")
-done <<< "$virtualmachines"
+echo "$virtualmachines" | grep '{' | while read -r line; do
+    virtualmachine_id=$(echo "$line" | sed -n 's/.*"vmid":\s*\([0-9]*\).*/\1/p')
+    virtualmachine_name=$(echo "$line" | sed -n 's/.*"name":"\([^"]*\)".*/\1/p')
+    virtualmachine_status=$(echo "$line" | sed -n 's/.*"status":"\([^"]*\)".*/\1/p')
+
+    # Controleer of de velden correct zijn gevuld
+    if [ -n "$virtualmachine_id" ] && [ -n "$virtualmachine_name" ] && [ -n "$virtualmachine_status" ]; then
+        formatted_line=$(printf "$FORMAT" "$virtualmachine_name" "$virtualmachine_status")
+        menu_items+=("$virtualmachine_id" "$formatted_line" "OFF")
+    fi
+done
 
 CHOICES=$(whiptail --title "Virtual Machine Delete" \
                    --checklist "Select Virtual Machines to delete:" 25 60 13 \
