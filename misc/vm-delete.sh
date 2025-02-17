@@ -61,7 +61,8 @@ while IFS= read -r row; do
     virtualmachine_id=$(echo "$row" | jq -r '.vmid')
     virtualmachine_name=$(echo "$row" | jq -r '.name')
     virtualmachine_status=$(echo "$row" | jq -r '.status')
-    formatted_line=$(printf "$FORMAT" "$virtualmachine_name" "$virtualmachine_status")
+    virtualmachine_node=$(echo "$row" | jq -r '.node')
+    formatted_line=$(printf "$FORMAT" "$virtualmachine_name" "$virtualmachine_status" "$virtualmachine_node")
     menu_items+=("$virtualmachine_id" "$formatted_line" "OFF")
 done <<< "$virtualmachines"
 
