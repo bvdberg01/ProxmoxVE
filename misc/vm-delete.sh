@@ -42,10 +42,9 @@ header_info
 echo "Loading..."
 whiptail --backtitle "Proxmox VE Helper Scripts" --title "Proxmox VE VM Deletion" --yesno "This will delete Virtual Machines. Proceed?" 10 58 || exit
 
-if command -v jq >/dev/null 2>&1; then
-    echo "jq is geïnstalleerd"
-else
-    echo "jq is niet geïnstalleerd"
+if ! command -v jq >/dev/null 2>&1; then
+    apt-get update &>/dev/null
+    apt-get install -y jq &>/dev/null
 fi
 
 virtualmachines=$(pvesh get /cluster/resources --type vm --output-format json | jq -c '.[] | select(.type == "qemu")')
