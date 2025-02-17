@@ -76,40 +76,45 @@ if [ -z "$CHOICES" ]; then
     exit 1
 fi
 
-read -p "Delete Virtual Machines manually or automatically? (Default: manual) m/a: " DELETE_MODE
-DELETE_MODE=${DELETE_MODE:-m}
-
-selected_ids=$(echo "$CHOICES" | tr -d '"' | tr -s ' ' '\n')
-
-for virtualmachine_id in $selected_ids; do
-    status=$(qm status $virtualmachine_id)
-
-    if [ "$status" == "status: running" ]; then
-        echo -e "${BL}[Info]${GN} Stopping Virtual Machine $virtualmachine_id...${CL}"
-        qm stop $virtualmachine_id &
-        sleep 5
-        echo -e "${BL}[Info]${GN} Virtual Machine $virtualmachine_id stopped.${CL}"
-    fi
-
-    if [[ "$DELETE_MODE" == "a" ]]; then
-        echo -e "${BL}[Info]${GN} Automatically deleting Virtual Machine $virtualmachine_id...${CL}"
-        qm destroy "$virtualmachine_id" &
-        pid=$!
-        spinner $pid
-        [ $? -eq 0 ] && echo "Virtual Machine $virtualmachine_id deleted." || whiptail --title "Error" --msgbox "Failed to delete Virtual Machine $virtualmachine_id." 10 60
-    else
-        read -p "Delete Virtual Machine $virtualmachine_id? (y/N): " CONFIRM
-        if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
-            echo -e "${BL}[Info]${GN} Deleting Virtual Machine $virtualmachine_id...${CL}"
-            qm destroy "$virtualmachine_id" &
-            pid=$!
-            spinner $pid
-            [ $? -eq 0 ] && echo "Virtual Machine $virtualmachine_id deleted." || whiptail --title "Error" --msgbox "Failed to delete Virtual Machine $virtualmachine_id." 10 60
-        else
-            echo -e "${BL}[Info]${RD} Skipping Virtual Machine $virtualmachine_id...${CL}"
-        fi
-    fi
+for item in $CHOICES; do
+    echo "Choice: $item"
 done
+
+
+# read -p "Delete Virtual Machines manually or automatically? (Default: manual) m/a: " DELETE_MODE
+# DELETE_MODE=${DELETE_MODE:-m}
+
+# selected_ids=$(echo "$CHOICES" | tr -d '"' | tr -s ' ' '\n')
+
+# for virtualmachine_id in $selected_ids; do
+#     status=$(qm status $virtualmachine_id)
+
+#     if [ "$status" == "status: running" ]; then
+#         echo -e "${BL}[Info]${GN} Stopping Virtual Machine $virtualmachine_id...${CL}"
+#         qm stop $virtualmachine_id &
+#         sleep 5
+#         echo -e "${BL}[Info]${GN} Virtual Machine $virtualmachine_id stopped.${CL}"
+#     fi
+
+#     if [[ "$DELETE_MODE" == "a" ]]; then
+#         echo -e "${BL}[Info]${GN} Automatically deleting Virtual Machine $virtualmachine_id...${CL}"
+#         qm destroy "$virtualmachine_id" &
+#         pid=$!
+#         spinner $pid
+#         [ $? -eq 0 ] && echo "Virtual Machine $virtualmachine_id deleted." || whiptail --title "Error" --msgbox "Failed to delete Virtual Machine $virtualmachine_id." 10 60
+#     else
+#         read -p "Delete Virtual Machine $virtualmachine_id? (y/N): " CONFIRM
+#         if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
+#             echo -e "${BL}[Info]${GN} Deleting Virtual Machine $virtualmachine_id...${CL}"
+#             qm destroy "$virtualmachine_id" &
+#             pid=$!
+#             spinner $pid
+#             [ $? -eq 0 ] && echo "Virtual Machine $virtualmachine_id deleted." || whiptail --title "Error" --msgbox "Failed to delete Virtual Machine $virtualmachine_id." 10 60
+#         else
+#             echo -e "${BL}[Info]${RD} Skipping Virtual Machine $virtualmachine_id...${CL}"
+#         fi
+#     fi
+# done
 
 header_info
 echo -e "${GN}Deletion process completed.${CL}\n"
