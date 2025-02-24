@@ -72,10 +72,8 @@ color() {
 
 # This function enables error handling in the script by setting options and defining a trap for the ERR signal.
 catch_errors() {
-  if [[ "$UPDATE_FROM_PVE" != "1" ]]; then
   set -Eeuo pipefail
   trap 'error_handler $LINENO "$BASH_COMMAND"' ERR
-  fi
 }
 
 # This function is called when an error occurs. It receives the exit code, line number, and command that caused the error, and displays an error message.
