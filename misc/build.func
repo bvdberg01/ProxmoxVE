@@ -12,10 +12,10 @@ variables() {
   DIAGNOSTICS="yes"                                 # sets the DIAGNOSTICS variable to "yes", used for the API call.
   METHOD="default"                                  # sets the METHOD variable to "default", used for the API call.
   RANDOM_UUID="$(cat /proc/sys/kernel/random/uuid)" # generates a random UUID and sets it to the RANDOM_UUID variable.
-  FROM_PVE="0"
+  UPDATE_FROM_PVE="0"
   for arg in "$0" "$@"; do
   if [[ "$arg" == "--from-pve" ]]; then
-    export FROM_PVE="1"
+    export UPDATE_FROM_PVE="1"
     break
   fi
   done
@@ -1041,7 +1041,7 @@ start() {
   fi
 
   if ! command -v pveversion >/dev/null 2>&1; then
-    if [[ "$FROM_PVE" != "1" ]]; then
+    if [[ "$UPDATE_FROM_PVE" != "1" ]]; then
       CHOICE=$(whiptail --backtitle "Proxmox VE Helper Scripts" --title "${APP} LXC Update/Setting" --menu \
         "Support/Update functions for ${APP} LXC. Choose an option:" \
         12 60 3 \
