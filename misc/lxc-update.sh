@@ -97,8 +97,6 @@ msg_ok() {
   printf "\r\e[2K${CM}${GN}%b${CL}\n" "$msg" >&2
   unset SPINNER_PID
   SPINNER_ACTIVE=0
-
-  log_message "OK" "$msg"
 }
 
 msg_error() {
@@ -111,7 +109,6 @@ msg_error() {
   printf "\r\e[2K${CROSS}${RD}%b${CL}\n" "$msg" >&2
   unset SPINNER_PID
   SPINNER_ACTIVE=0
-  log_message "ERROR" "$msg"
 }
 
 header_info
