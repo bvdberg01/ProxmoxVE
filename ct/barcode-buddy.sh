@@ -5,6 +5,12 @@ source <(curl -s https://raw.githubusercontent.com/bvdberg01/ProxmoxVE/backup-an
 # License: MIT | https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
 # Source: https://github.com/Forceu/barcodebuddy
 
+if [[ "$@" == *"--from-pve"* ]]; then
+  export FROM_PVE="1"
+else
+  export FROM_PVE="0"
+fi
+
 APP="Barcode-Buddy"
 var_tags="grocery;household"
 var_cpu="1"
