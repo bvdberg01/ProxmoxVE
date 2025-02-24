@@ -14,13 +14,13 @@ var_os="debian"
 var_version="12"
 var_unprivileged="1"
 
-# header_info "$APP"
 variables
+header_info "$APP"
 color
 catch_errors
 
 function update_script() {
-  # header_info
+  header_info
   check_container_storage
   check_container_resources
   if [[ ! -d /opt/barcodebuddy ]]; then
