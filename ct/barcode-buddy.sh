@@ -5,11 +5,13 @@ source <(curl -s https://raw.githubusercontent.com/bvdberg01/ProxmoxVE/backup-an
 # License: MIT | https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
 # Source: https://github.com/Forceu/barcodebuddy
 
-if [[ " $0 $* " == *" --from-pve "* ]]; then
-  export FROM_PVE="1"
-else
-  export FROM_PVE="0"
-fi
+export FROM_PVE="0"
+for arg in "$0" "$@"; do
+  if [[ "$arg" == "--from-pve" ]]; then
+    export FROM_PVE="1"
+    break
+  fi
+done
 
 echo $FROM_PVE
 
