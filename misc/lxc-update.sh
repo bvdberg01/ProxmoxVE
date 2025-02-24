@@ -104,8 +104,10 @@ else
 msg_error "Backup failed"
 fi
 else
+set +e
 pct exec $CHOICE -- update --from-pve
 exit_code=$?
+set -e
 fi
 if [ $exit_code -eq 0 ]; then
     msg_ok "Update completed"
