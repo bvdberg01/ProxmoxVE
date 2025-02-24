@@ -1006,7 +1006,9 @@ check_container_resources() {
       exit 1
     fi
   else
+    if [[ "$UPDATE_FROM_PVE" != "1" ]]; then
     echo -e ""
+    fi
   fi
 }
 
