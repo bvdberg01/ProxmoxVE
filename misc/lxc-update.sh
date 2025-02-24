@@ -16,47 +16,93 @@ function header_info {
 EOF
 }
 
-set -eEuo pipefail
-YW=$(echo "\033[33m")
-BL=$(echo "\033[36m")
-RD=$(echo "\033[01;31m")
-GN=$(echo "\033[1;92m")
-CL=$(echo "\033[m")
-TAB="  "
-BFR="\\r\\033[K"
-HOLD="-"
-CROSS="${RD}✗${CL}"
-CM="${TAB}✔️${TAB}${CL}"
+  # Colors
+  YW=$(echo "\033[33m")
+  YWB=$(echo "\033[93m")
+  BL=$(echo "\033[36m")
+  RD=$(echo "\033[01;31m")
+  BGN=$(echo "\033[4;92m")
+  GN=$(echo "\033[1;92m")
+  DGN=$(echo "\033[32m")
 
-spinner() {
-    local pid=$1
-    local delay=0.1
-    local spinstr='|/-\'
-    while ps -p $pid > /dev/null; do
-        printf " [%c]  " "$spinstr"
-        spinstr=${spinstr#?}${spinstr%"${spinstr#?}"}
-        sleep $delay
-        printf "\r"
+  # Formatting
+  CL=$(echo "\033[m")
+  UL=$(echo "\033[4m")
+  BOLD=$(echo "\033[1m")
+  BFR="\\r\\033[K"
+  HOLD=" "
+  TAB="  "
+
+  # Icons
+  CM="${TAB}✔️${TAB}${CL}"
+  CROSS="${TAB}✖️${TAB}${CL}"
+  INFO="${TAB}💡${TAB}${CL}"
+  OS="${TAB}🖥️${TAB}${CL}"
+  OSVERSION="${TAB}🌟${TAB}${CL}"
+  CONTAINERTYPE="${TAB}📦${TAB}${CL}"
+  DISKSIZE="${TAB}💾${TAB}${CL}"
+  CPUCORE="${TAB}🧠${TAB}${CL}"
+  RAMSIZE="${TAB}🛠️${TAB}${CL}"
+  SEARCH="${TAB}🔍${TAB}${CL}"
+  VERIFYPW="${TAB}🔐${TAB}${CL}"
+  CONTAINERID="${TAB}🆔${TAB}${CL}"
+  HOSTNAME="${TAB}🏠${TAB}${CL}"
+  BRIDGE="${TAB}🌉${TAB}${CL}"
+  NETWORK="${TAB}📡${TAB}${CL}"
+  GATEWAY="${TAB}🌐${TAB}${CL}"
+  DISABLEIPV6="${TAB}🚫${TAB}${CL}"
+  DEFAULT="${TAB}⚙️${TAB}${CL}"
+  MACADDRESS="${TAB}🔗${TAB}${CL}"
+  VLANTAG="${TAB}🏷️${TAB}${CL}"
+  ROOTSSH="${TAB}🔑${TAB}${CL}"
+  CREATING="${TAB}🚀${TAB}${CL}"
+  ADVANCED="${TAB}🧩${TAB}${CL}"
+
+# This function displays an informational message with logging support.
+start_spinner() {
+  local msg="$1"
+  local frames=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
+  local spin_i=0
+  local interval=0.1
+  local term_width=$(tput cols)
+
+  {
+    while [ "${SPINNER_ACTIVE:-1}" -eq 1 ]; do
+      printf "\r\e[2K${frames[spin_i]} ${YW}%b${CL}" "$msg" >&2
+      spin_i=$(((spin_i + 1) % ${#frames[@]}))
+      sleep "$interval"
     done
-    printf "    \r"
+  } &
+
+  SPINNER_PID=$!
 }
 
-# msg_info() {
-#   local msg="$1"
-#   echo -ne " ${HOLD} ${YW}${msg}..."
-# }
+msg_ok() {
+  if [ -n "${SPINNER_PID:-}" ] && ps -p "$SPINNER_PID" >/dev/null 2>&1; then
+    kill "$SPINNER_PID" >/dev/null 2>&1
+    wait "$SPINNER_PID" 2>/dev/null || true
+  fi
 
-# msg_ok() {
-#   local msg="$1"
-#   echo -e "${BFR} ${CM} ${GN}${msg}${CL}"
-# }
+  local msg="$1"
+  printf "\r\e[2K${CM}${GN}%b${CL}\n" "$msg" >&2
+  unset SPINNER_PID
+  SPINNER_ACTIVE=0
 
-# msg_error() {
-#   local msg="$1"
-#   echo -e "${BFR} ${CROSS} ${RD}${msg}${CL}"
-# }
+  log_message "OK" "$msg"
+}
 
+msg_error() {
+  if [ -n "${SPINNER_PID:-}" ] && ps -p "$SPINNER_PID" >/dev/null 2>&1; then
+    kill "$SPINNER_PID" >/dev/null 2>&1
+    wait "$SPINNER_PID" 2>/dev/null || true
+  fi
 
+  local msg="$1"
+  printf "\r\e[2K${CROSS}${RD}%b${CL}\n" "$msg" >&2
+  unset SPINNER_PID
+  SPINNER_ACTIVE=0
+  log_message "ERROR" "$msg"
+}
 
 header_info
 echo "Loading..."
