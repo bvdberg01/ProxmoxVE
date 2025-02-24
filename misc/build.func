@@ -12,6 +12,13 @@ variables() {
   DIAGNOSTICS="yes"                                 # sets the DIAGNOSTICS variable to "yes", used for the API call.
   METHOD="default"                                  # sets the METHOD variable to "default", used for the API call.
   RANDOM_UUID="$(cat /proc/sys/kernel/random/uuid)" # generates a random UUID and sets it to the RANDOM_UUID variable.
+  FROM_PVE="0"
+  for arg in "$0" "$@"; do
+  if [[ "$arg" == "--from-pve" ]]; then
+    export FROM_PVE="1"
+    break
+  fi
+  done
 }
 
 source <(curl -s https://raw.githubusercontent.com/bvdberg01/ProxmoxVE/backup-and-update/misc/api.func)
