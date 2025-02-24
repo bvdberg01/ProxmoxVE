@@ -168,7 +168,13 @@ if [ $exit_code -eq 0 ]; then
 else
   msg_info "Restoring LXC from backup"
   pct stop $CHOICE
-  pct restore $CHOICE /var/lib/vz/dump/vzdump-lxc-$CHOICE-*.tar.zst --storage local-lvm --force
+  pct restore $CHOICE /var/lib/vz/dump/vzdump-lxc-$CHOICE-*.tar.zst --storage local-lvm --force > /dev/null 2>&1
   pct start $CHOICE
+  status=$?
+  if [ $status -eq 0 ]; then
   msg_error "Restored LXC from backup"
+  else
+  msg_error "Restored LXC from backup failed"
+  fi
+  
 fi
