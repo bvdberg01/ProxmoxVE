@@ -41,20 +41,20 @@ spinner() {
     printf "    \r"
 }
 
-msg_info() {
-  local msg="$1"
-  echo -ne " ${HOLD} ${YW}${msg}..."
-}
+# msg_info() {
+#   local msg="$1"
+#   echo -ne " ${HOLD} ${YW}${msg}..."
+# }
 
-msg_ok() {
-  local msg="$1"
-  echo -e "${BFR} ${CM} ${GN}${msg}${CL}"
-}
+# msg_ok() {
+#   local msg="$1"
+#   echo -e "${BFR} ${CM} ${GN}${msg}${CL}"
+# }
 
-msg_error() {
-  local msg="$1"
-  echo -e "${BFR} ${CROSS} ${RD}${msg}${CL}"
-}
+# msg_error() {
+#   local msg="$1"
+#   echo -e "${BFR} ${CROSS} ${RD}${msg}${CL}"
+# }
 
 
 
