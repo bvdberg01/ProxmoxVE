@@ -77,6 +77,16 @@ start_spinner() {
   SPINNER_PID=$!
 }
 
+msg_info() {
+  local msg="$1"
+  if [ "${SPINNER_ACTIVE:-0}" -eq 1 ]; then
+    return
+  fi
+
+  SPINNER_ACTIVE=1
+  start_spinner "$msg"
+}
+
 msg_ok() {
   if [ -n "${SPINNER_PID:-}" ] && ps -p "$SPINNER_PID" >/dev/null 2>&1; then
     kill "$SPINNER_PID" >/dev/null 2>&1
