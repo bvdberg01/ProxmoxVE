@@ -146,24 +146,29 @@ fi
 
 header_info
 if(whiptail --backtitle "Proxmox VE Helper Scripts" --title "LXC Container Update" --yesno "Do you want to create a backup from your container?" 10 58); then
-msg_info "Creating backup"
-vzdump $CHOICE --compress zstd --storage local -notes-template "community-scripts backup updater" > /dev/null 2>&1
-status=$?
-if [ $status -eq 0 ]; then
-msg_ok "Backup created"
-pct exec $CHOICE -- update --from-pve
-exit_code=$?
+  msg_info "Creating backup"
+  vzdump $CHOICE --compress zstd --storage local -notes-template "community-scripts backup updater" > /dev/null 2>&1
+  status=$?
+
+  if [ $status -eq 0 ]; then
+  msg_ok "Backup created"
+  pct exec $CHOICE -- update --from-pve
+  exit_code=$?
+  else
+  msg_error "Backup failed"
+  fi
+
 else
-msg_error "Backup failed"
+  pct exec $CHOICE -- update --from-pve
+  exit_code=$?
 fi
-else
-set +e
-pct exec $CHOICE -- update --from-pve
-exit_code=$?
-set -e
-fi
+
 if [ $exit_code -eq 0 ]; then
     msg_ok "Update completed"
 else
-    msg_error "Update failed"
+  msg_info "Restoring LXC from backup"
+  pct stop $CHOICE
+  pct restore $CHOICE /var/lib/vz/dump/vzdump-lxc-$CHOICE-*.tar.zst --storage local
+  pct start $CHOICE
+  msg_error "Restored LXC from backup"
 fi
