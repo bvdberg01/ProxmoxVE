@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-source <(curl -s https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/misc/build.func)
+source <(curl -s https://raw.githubusercontent.com/bvdberg01/ProxmoxVE/backup-and-update/misc/build.func)
 # Copyright (c) 2021-2025 community-scripts ORG
 # Author: bvdberg01
 # License: MIT | https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
@@ -37,7 +37,7 @@ function update_script() {
     cd /opt
     wget -q "https://github.com/sabre-io/baikal/releases/download/${RELEASE}/baikal-${RELEASE}.zip"
     mv /opt/baikal /opt/baikal-backup
-    unzip -o -q "baikal-${RELEASE}.zip"
+    unzipo -o -q "baikal-${RELEASE}.zip"
     cp -r /opt/baikal-backup/config/baikal.yaml /opt/baikal/config/
     cp -r /opt/baikal-backup/Specific/ /opt/baikal/
     chown -R www-data:www-data /opt/baikal/
