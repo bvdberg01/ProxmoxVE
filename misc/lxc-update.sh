@@ -164,7 +164,7 @@ else
 fi
 
 if [ $exit_code -eq 0 ]; then
-  
+  msg_ok "Update completed"
 else
   msg_info "Restoring LXC from backup"
   pct stop $CHOICE
