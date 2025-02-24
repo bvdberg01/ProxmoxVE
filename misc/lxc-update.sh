@@ -170,9 +170,9 @@ else
   pct stop $CHOICE
   pct restore $CHOICE /var/lib/vz/dump/vzdump-lxc-$CHOICE-*.tar.zst --storage local-lvm --force > /dev/null 2>&1
   pct start $CHOICE
-  status=$?
-  if [ $status -eq 0 ]; then
-  msg_error "Restored LXC from backup"
+  restorestatus=$?
+  if [ $restorestatus -eq 0 ]; then
+  msg_ok "Restored LXC from backup"
   else
   msg_error "Restored LXC from backup failed"
   fi
