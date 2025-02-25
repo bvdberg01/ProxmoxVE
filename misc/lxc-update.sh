@@ -135,7 +135,7 @@ while read -r container; do
 done <<< "$containers"
 
 CHOICE=$(whiptail --title "LXC Container Update" \
-                   --radiolist "Select LXC containers to update:" 25 60 13 \
+                   --radiolist "Select LXC container to update:" 25 60 13 \
                    "${menu_items[@]}" 3>&2 2>&1 1>&3)
 
 if [ -z "$CHOICE" ]; then
