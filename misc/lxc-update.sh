@@ -188,7 +188,7 @@ if [ $exit_code -eq 0 ]; then
 else
   msg_info "Restoring LXC from backup"
   pct stop $CHOICE
-  $LXC_STORAGE = (pct config $CHOICE | awk -F '[:,]' '/rootfs/ {print $2}')
+  $LXC_STORAGE=$(pct config $CHOICE | awk -F '[:,]' '/rootfs/ {print $2}')
   pct restore $CHOICE /var/lib/vz/dump/vzdump-lxc-$CHOICE-*.tar.zst --storage $LXC_STORAGE --force > /dev/null 2>&1
   pct start $CHOICE
   restorestatus=$?
