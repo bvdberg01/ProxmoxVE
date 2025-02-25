@@ -131,7 +131,10 @@ while read -r container; do
     container_name=$(echo $container | awk '{print $2}')
     container_status=$(echo $container | awk '{print $3}')
     formatted_line=$(printf "$FORMAT" "$container_name" "$container_status")
-    menu_items+=("$container_id" "$formatted_line" "OFF")
+    IS_HELPERSCRIPT_LXC=$(pct exec $container_id -- [ -e /usr/bin/update ] && echo true || echo false)
+    if [ "$IS_HELPERSCRIPT_LXC" = true ]; then
+      menu_items+=("$container_id" "$formatted_line" "OFF")
+    fi
 done <<< "$containers"
 
 CHOICE=$(whiptail --title "LXC Container Update" \
