@@ -146,8 +146,28 @@ fi
 
 header_info
 if(whiptail --backtitle "Proxmox VE Helper Scripts" --title "LXC Container Update" --yesno "Do you want to create a backup from your container?" 10 58); then
+  
+  STORAGES=$(awk '/^(\S+):/ {storage=$2} /content.*backup/ {print storage}' /etc/pve/storage.cfg)
+
+  if [ -z "$STORAGES" ]; then
+    whiptail --msgbox "Geen opslag met 'backup' gevonden!" 8 40
+    exit 1
+  fi
+
+  MENU_ITEMS=()
+  for STORAGE in $STORAGES; do
+      MENU_ITEMS+=("$STORAGE" "")
+  done
+
+  STORAGE_CHOICE=$(whiptail --title "Select storage device" --menu "Select a storage device (Only storage devices with 'backup' support are listed):" 15 50 5 "${MENU_ITEMS[@]}" 3>&1 1>&2 2>&3)
+
+  if [ -z "$STORAGE_CHOICE" ]; then
+      msg_error "No storage selected!"
+      exit 1
+  fi
+
   msg_info "Creating backup"
-  vzdump $CHOICE --compress zstd --storage local -notes-template "community-scripts backup updater" > /dev/null 2>&1
+  vzdump $CHOICE --compress zstd --storage $STORAGE_CHOICE -notes-template "community-scripts backup updater" > /dev/null 2>&1
   status=$?
 
   if [ $status -eq 0 ]; then
@@ -168,7 +188,8 @@ if [ $exit_code -eq 0 ]; then
 else
   msg_info "Restoring LXC from backup"
   pct stop $CHOICE
-  pct restore $CHOICE /var/lib/vz/dump/vzdump-lxc-$CHOICE-*.tar.zst --storage local-lvm --force > /dev/null 2>&1
+  $LXC_STORAGE = (pct config $CHOICE | awk -F '[:,]' '/rootfs/ {print $2}')
+  pct restore $CHOICE /var/lib/vz/dump/vzdump-lxc-$CHOICE-*.tar.zst --storage $LXC_STORAGE --force > /dev/null 2>&1
   pct start $CHOICE
   restorestatus=$?
   if [ $restorestatus -eq 0 ]; then
