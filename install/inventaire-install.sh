@@ -68,7 +68,7 @@ msg_ok "Installed Apache CouchDB."
 
 msg_info "Installing Inventaire"
 cd /opt
-git clone http://github.com/inventaire/inventaire
+$STD git clone http://github.com/inventaire/inventaire
 cd inventaire
 $STD npm install --production
 echo "${RELEASE}" >/opt/${APPLICATION}_version.txt
