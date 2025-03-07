@@ -25,7 +25,8 @@ $STD apt-get install -y \
   libarchive-dev \
   git \
   libmariadb-dev \
-  redis-server
+  redis-server \
+  nginx
 msg_ok "Installed Dependencies"
 
 msg_info "Setting up PostgreSQL"
@@ -72,14 +73,11 @@ $STD bundle install
 $STD gem install sidekiq
 $STD npm install --global corepack
 corepack enable
+$STD corepack prepare yarn@3.8.5 --activate
 $STD yarn install
-echo "${RELEASE}" >/opt/${APPLICATION}_version.txt
-msg_ok "Installed manyfold"
 
-msg_info "Creating Service"
-cat <<EOF >/opt/manyfold.sh
-#!/bin/bash
-
+cat <<EOF >/opt/.env
+export APP_VERSION=${RELEASE}
 export GUID=1002
 export PUID=1001
 export PUBLIC_HOSTNAME=subdomain.somehost.org
@@ -88,23 +86,28 @@ export SECRET_KEY_BASE=THE_SECRET
 export REDIS_URL=redis://127.0.0.1:6379/1
 export DATABASE_ADAPTER=postgresql
 export DATABASE_HOST=127.0.0.1
-export DATABASE_PASSWORD=${$DB_PASS}
 export DATABASE_USER=${DB_USER}
+export DATABASE_PASSWORD=${DB_PASS}
 export DATABASE_NAME=${DB_NAME}
 export DATABASE_CONNECTION_POOL=16
 export MULTIUSER=enabled
 export HTTPS_ONLY=false
-
-#das ist eine Legacy-Option und veraltet
-#export RAILS_SERVE_STATIC_FILES=enabled
-
-#RAILS_RELATIVE_URL_ROOT=/manyfold
-
-#exec
-#bin/rails server -b 127.0.0.1 --port 5000 --environment production
-#bin/rails server -b 127.0.0.1 --port 5000 --environment development
-bin/rails server -b 0.0.0.0 --port 5000 --environment development
+export RAILS_ENV=production
 EOF
+source /opt/.env && bin/rails db:migrate
+source /opt/.env && bin/rails assets:precompile
+echo "${RELEASE}" >/opt/${APPLICATION}_version.txt
+msg_ok "Installed manyfold"
+
+msg_info "Creating Service"
+cat <<EOF >/opt/manyfold.sh
+#!/bin/bash
+source .env
+/opt/manyfold/bin/rails server -b 127.0.0.1 --port 5000 --environment production
+EOF
+
+chmod +x /opt/manyfold.sh
+
 cat <<EOF >/etc/systemd/system/manyfold.service
 [Unit]
 Description=Manyfold (FabHardware)
@@ -112,10 +115,10 @@ Requires=network.target
 
 [Service]
 Type=simple
-User=manyfold
-Group=manyfold
-WorkingDirectory=/srv/manyfold
-ExecStart=/usr/bin/bash -lc '/srv/manyfold/manyfold.sh'
+User=root
+Group=root
+WorkingDirectory=/opt/manyfold
+ExecStart=/usr/bin/bash -lc '/opt/manyfold.sh'
 TimeoutSec=30
 RestartSec=15s
 Restart=always
@@ -123,8 +126,32 @@ Restart=always
 [Install]
 WantedBy=multi-user.target
 EOF
-chmod +x /opt/manyfold.sh
+
+
 systemctl enable -q --now manyfold
+
+cat <<EOF >/etc/nginx/sites-available/manyfold.conf
+server {
+    listen 80;
+    server_name manyfold;
+    root /opt/manyfold/public;
+
+    location / {
+        try_files $uri/index.html $uri @rails;
+    }
+
+    location @rails {
+        proxy_pass http://127.0.0.1:5000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+EOF
+ln -s /etc/nginx/sites-available/manyfold.conf /etc/nginx/sites-enabled/
+rm -f /etc/nginx/sites-enabled/default
+$STD systemctl reload nginx
 msg_ok "Created Service"
 
 motd_ssh
