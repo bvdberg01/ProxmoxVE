@@ -100,13 +100,6 @@ echo "${RELEASE}" >/opt/${APPLICATION}_version.txt
 msg_ok "Installed manyfold"
 
 msg_info "Creating Service"
-cat <<EOF >/opt/manyfold.sh
-#!/bin/bash
-source .env
-/opt/manyfold/bin/rails server -b 127.0.0.1 --port 5000 --environment production
-EOF
-
-chmod +x /opt/manyfold.sh
 
 cat <<EOF >/etc/systemd/system/manyfold.service
 [Unit]
@@ -118,7 +111,8 @@ Type=simple
 User=root
 Group=root
 WorkingDirectory=/opt/manyfold
-ExecStart=/usr/bin/bash -lc '/opt/manyfold.sh'
+EnvironmentFile=/opt/.env
+ExecStart=/usr/bin/bash -lc '/opt/manyfold/bin/rails server -b 127.0.0.1 --port 5000 --environment production'
 TimeoutSec=30
 RestartSec=15s
 Restart=always
@@ -126,7 +120,6 @@ Restart=always
 [Install]
 WantedBy=multi-user.target
 EOF
-
 
 systemctl enable -q --now manyfold
 
