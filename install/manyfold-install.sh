@@ -60,7 +60,7 @@ source /usr/local/rvm/scripts/rvm
 msg_ok "Installed Ruby Version Manager"
 
 msg_info "Adding manyfold user"
-useradd -m -d /opt/manyfold -s /usr/bin/bash manyfold
+useradd -m -s /usr/bin/bash manyfold
 usermod -a -G rvm manyfold
 msg_ok "Added manyfold user"
 
@@ -82,6 +82,7 @@ $STD gem install sidekiq
 $STD npm install --global corepack
 corepack enable
 $STD corepack prepare $YARN_VERSION --activate
+$STD corepack use $YARN_VERSION --global
 $STD yarn install
 cat <<EOF >/opt/.env
 APP_VERSION=${RELEASE}
