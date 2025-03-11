@@ -58,6 +58,7 @@ $STD gpg2 --keyserver keyserver.ubuntu.com --recv-keys 409B6B1796C275462A1703113
 curl -sSL https://get.rvm.io -o install_rvm.sh
 chmod +x install_rvm.sh
 bash install_rvm.sh stable
+source /etc/profile.d/rvm.sh
 msg_ok "Installed Ruby Version Manager"
 
 msg_info "Adding manyfold user"
