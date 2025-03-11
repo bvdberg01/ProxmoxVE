@@ -76,8 +76,8 @@ chown -R manyfold:manyfold /opt/manyfold
 RUBY_VERSION=$(cat .ruby-version)
 YARN_VERSION=$(grep '"packageManager":' package.json | sed -E 's/.*"(yarn@[0-9\.]+)".*/\1/')
 $STD gem install bundler
-$STD /usr/local/rvm/bin/rvm install $RUBY_VERSION
-$STD /usr/local/rvm/bin/rvm use --default $RUBY_VERSION
+/bin/bash --login -c "rvm install $RUBY_VERSION"
+/bin/bash --login -c "rvm use --default $RUBY_VERSION"
 $STD bundle install #do not run as root
 $STD gem install sidekiq
 $STD npm install --global corepack
