@@ -80,6 +80,11 @@ selected_ids=$(echo "$CHOICES" | tr -d '"' | tr -s ' ' '\n')
 
 if [[ "$DELETE_MODE" == "a" ]]; then
     echo "$selected_ids" | xargs -I {} -P 6 sh -c '
+        export BL="\033[36m"
+        export GN="\033[1;92m"
+        export RD="\033[01;31m"
+        export CL="\033[m"
+        
         status=$(pct status "{}")
         if [ "$status" = "status: running" ]; then
             pct stop "{}" >/dev/null 2>&1
@@ -90,9 +95,9 @@ if [[ "$DELETE_MODE" == "a" ]]; then
 
         pct destroy "{}" -f >/dev/null 2>&1
         if [ $? -eq 0 ]; then
-            echo -e "${BL}[Info]${GN} Deleted container {} successfully...${CL}"
+            echo -e "${BL}[Info]${GN} Deleted container {} successfully.${CL}"
         else
-            echo -e "${BL}[Error]${RED} Failed to delete container {}...${CL}"
+            echo -e "${BL}[Error]${RD} Failed to delete container {}.${CL}"
         fi
     '
 else
