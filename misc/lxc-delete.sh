@@ -76,26 +76,41 @@ DELETE_MODE=${DELETE_MODE:-m}
 
 selected_ids=$(echo "$CHOICES" | tr -d '"' | tr -s ' ' '\n')
 
-echo "$selected_ids" | xargs -I {} -P 4 sh -c '
-    status=$(pct status {})
-    if [ "$status" == "status: running" ]; then
-        echo -e "${BL}[Info]${GN} Stopping container {}...${CL}"
-        pct stop {}
-    fi
-    
-    if [[ "$DELETE_MODE" == "a" ]]; then
-        echo -e "${BL}[Info]${GN} Automatically deleting container {}...${CL}"
-        pct destroy {} -f
-    else
-        read -p "Delete container {}? (y/N): " CONFIRM
-        if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
-            echo -e "${BL}[Info]${GN} Deleting container {}...${CL}"
-            pct destroy {} -f
-        else
-            echo -e "${BL}[Info]${RD} Skipping container {}...${CL}"
+if [[ "$DELETE_MODE" == "a" ]]; then
+    echo "$selected_ids" | xargs -I {} -P 4 sh -c '
+        status=$(pct status {})
+        if [ "$status" == "status: running" ]; then
+            pct stop $container_id &
+            sleep 5
         fi
-    fi
-'
+
+        pct destroy {} -f
+        echo -e "${BL}[Info]${GN} Deleted container {}...${CL}"
+    '
+else
+    for container_id in $selected_ids; do
+        status=$(pct status $container_id)
+
+        if [ "$status" == "status: running" ]; then
+            echo -e "${BL}[Info]${GN} Stopping container $container_id...${CL}"
+            pct stop $container_id &
+            sleep 5
+            echo -e "${BL}[Info]${GN} Container $container_id stopped.${CL}"
+        fi
+
+        read -p "Delete container $container_id? (y/N): " CONFIRM
+        if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
+            echo -e "${BL}[Info]${GN} Deleting container $container_id...${CL}"
+            pct destroy "$container_id" -f &
+            pid=$!
+            spinner $pid
+            [ $? -eq 0 ] && echo "Container $container_id deleted." || whiptail --title "Error" --msgbox "Failed to delete container $container_id." 10 60
+        else
+            echo -e "${BL}[Info]${RD} Skipping container $container_id...${CL}"
+        fi
+
+    done
+fi
 
 header_info
 echo -e "${GN}Deletion process completed.${CL}\n"
