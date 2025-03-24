@@ -95,9 +95,9 @@ if [[ "$DELETE_MODE" == "a" ]]; then
 
         pct destroy "{}" -f >/dev/null 2>&1
         if [ $? -eq 0 ]; then
-            echo -e "${BL}[Info]${GN} Deleted container {} successfully.${CL}"
+            echo "${GN} Deleted container {} successfully.${CL}"
         else
-            echo -e "${BL}[Error]${RD} Failed to delete container {}.${CL}"
+            echo -e "${RD} Failed to delete container {}.${CL}"
         fi
     '
 else
