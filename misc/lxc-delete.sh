@@ -71,6 +71,8 @@ if [ -z "$CHOICES" ]; then
     exit 1
 fi
 
+header_info
+
 read -p "Delete containers manually or automatically? (Default: manual) m/a: " DELETE_MODE
 DELETE_MODE=${DELETE_MODE:-m}
 
@@ -114,5 +116,4 @@ else
     done
 fi
 
-header_info
 echo -e "${GN}Deletion process completed.${CL}\n"
